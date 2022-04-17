@@ -31,6 +31,8 @@ class StickGame extends FlameGame with HasDraggables, HasTappables{
 
   final Vector2 scorePosition = Vector2(40, 40);
 
+  bool isDrag = false;
+
   @override
   Future<void>? onLoad() async{
     target = TargetComponent(position: Vector2(canvasSize.x/2, canvasSize.y/2));
@@ -127,6 +129,14 @@ class StickGame extends FlameGame with HasDraggables, HasTappables{
   }
 
   @override
+  void onDragStart(int pointerId, DragStartInfo info) {
+    super.onDragStart(pointerId, info);
+    if(target.path.contains(info.eventPosition.game.toOffset())){
+      isDrag = true;
+    }
+  }
+
+  @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     super.onDragUpdate(pointerId, info);
     var eventPosition = info.eventPosition.game;
@@ -136,9 +146,22 @@ class StickGame extends FlameGame with HasDraggables, HasTappables{
         eventPosition.y > canvasSize.y - target.radius) {
       return;
     }
-    if(isRunning){
+
+    if(isRunning && isDrag){
       target.onDragUpdate(pointerId, info);
     }
+  }
+
+  @override
+  void onDragCancel(int pointerId) {
+    super.onDragCancel(pointerId);
+    isDrag = false;
+  }
+
+  @override
+  void onDragEnd(int pointerId, DragEndInfo info) {
+    super.onDragEnd(pointerId, info);
+    isDrag = false;
   }
 
   @override
